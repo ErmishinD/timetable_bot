@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -33,8 +33,8 @@ class User(Base):
     username = Column(String, nullable=False)
     action_flag = Column(String, nullable=False)
     is_admin = Column(Boolean, nullable=False)
-    group = Column(String, ForeignKey('group.id'), nullable=False)
-    sub_group = Column(Integer, ForeignKey('sub_group.id'), nullable=False)
+    group = Column(String, nullable=False)
+    sub_group = Column(Integer, nullable=False)
 
     def __init__(self, chat_id, username, action_flag, is_admin, group, sub_group):
         self.chat_id = chat_id
@@ -57,7 +57,6 @@ class User(Base):
 
         session.add(add)
         session.commit()
-
 
 
 class Pair(Base):
@@ -85,8 +84,6 @@ class Pair(Base):
     :type faculty: string.
     :param course: Номер курса.
     :type course: int.
-    :param speciality: Название специальности.
-    :type speciality: string.
     :param group: Шифр группы.
     :type group: string.
     :param sub_group: Номер подгруппы.
@@ -101,7 +98,7 @@ class Pair(Base):
     housing = Column(String, nullable=False)
     lecture_hall = Column(String, nullable=False)
     pair_start = Column(String, nullable=False)
-    pair_end = Column(String, nullable=False)
+    pair_end = Column(Text, nullable=False)
     week_day = Column(String, nullable=False)
     week_form = Column(String, nullable=False)
     faculty = Column(String, nullable=False)
@@ -119,7 +116,7 @@ class Pair(Base):
         self.housing = housing
         self.lecture_hall = lecture_hall
         self.pair_start = pair_start
-        self.pair_end = pair_end,
+        self.pair_end = pair_end
         self.week_day = week_day
         self.week_form = week_form
         self.faculty = faculty
@@ -128,13 +125,14 @@ class Pair(Base):
         self.sub_group = sub_group
 
     def __repr__(self):
-        return "Pair<('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (self.pair_name, self.form_of_pair,
-                                                                                                         self.teacher, self.housing,
-                                                                                                         self.lecture_hall,
-                                                                                                         self.pair_start, self.pair_end,
-                                                                                                         self.week_day, self.week_form,
-                                                                                                         self.faculty, self.course,
-                                                                                                         self.group, self.sub_group)
+        return "Pair<('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'," \
+               " '%s', '%s', '%s', '%s', '%s')>" % (self.pair_name, self.form_of_pair,
+                                                    self.teacher, self.housing,
+                                                    self.lecture_hall,
+                                                    self.pair_start, self.pair_end,
+                                                    self.week_day, self.week_form,
+                                                    self.faculty, self.course,
+                                                    self.group, self.sub_group)
 
     def add_to_base(self):
         session_make = sessionmaker(engine)
