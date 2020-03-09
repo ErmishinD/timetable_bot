@@ -4,7 +4,7 @@ import markups as mk
 
 bot = TeleBot('1107223113:AAEx7XU3s4vLbEpyfTMk7_73lLA1KtQi-Mc')
 
-groups = ["6.12.19-2"]
+groups = ["6.1219-2"]
 sub_groups = ["1", "2"]
 
 @bot.message_handler(commands=['start'])
@@ -29,7 +29,6 @@ def take_sub_group(message, group):
     chat_id = message.chat.id
     sub_group = message.text
     group = group
-    bot.send_message(chat_id, 'Ваша группа: {0} ({1})'.format(group, sub_group))
 
     if message.from_user.username == 'Arty401' or message.from_user.username == "ErmishinD":
         is_admin = True
@@ -38,6 +37,8 @@ def take_sub_group(message, group):
 
     data_base.User(chat_id=chat_id, username=username, action_flag='main',
                    is_admin=True, group=group, sub_group=sub_group).add_to_base()
+
+    msg = bot.send_message(chat_id, 'Ваша группа: {0} ({1})\nПоздравляю! Вы успешно зарегистрировались.'.format(group, sub_group), reply_markup=mk.main())
 
 
 bot.enable_save_next_step_handlers()
