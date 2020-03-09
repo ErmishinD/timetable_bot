@@ -4,29 +4,27 @@ from telebot import types
 def main():
     '''маркап главного меню'''
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    btn1 = types.KeyboardButton("Показать расписание")
-    btn2 = types.KeyboardButton("Установить напоминание")
-    btn3 = types.KeyboardButton("Какая сейчас пара?")
-    btn4 = types.KeyboardButton("Как зовут преподавателя?")
-    btn5 = types.KeyboardButton("Расписание другой группы")
 
-    buttons = [btn1, btn2, btn3, btn4, btn5]
+    buttons = ["Показать расписание",
+               "Установить напоминание",
+               "Какая сейчас пара?",
+               "Как зовут преподавателя?",
+               "Расписание другой группы"]
     for btn in buttons:
-        markup.row(btn)
+        markup.row(types.KeyboardButton(btn))
     return markup
 
 
 def show_timetable():
     '''подменю показа расписания'''
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    btn1 = types.KeyboardButton("На сегодня")
-    btn2 = types.KeyboardButton("На завтра")
-    btn3 = types.KeyboardButton("Не неделю")
-    btn4 = types.KeyboardButton("Расписание звонков")
 
-    buttons = [btn1, btn2, btn3, btn4]
+    buttons = ["На сегодня",
+               "На завтра",
+               "Не неделю",
+               "Расписание звонков"]
     for btn in buttons:
-        markup.row(btn)
+        markup.row(types.KeyboardButton(btn))
     return markup
 
 
@@ -37,14 +35,14 @@ def cancel():
     murkup.row(btn1)
     return markup
 
+
 def name_teacher():
     '''подменю ФИО преподавателя'''
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    btn1 = types.KeyboardButton("Сейчас")
-    btn2 = types.KeyboardButton("Указать предмет")
-    btn3 = types.KeyboardButton("Отмена")
 
-    buttons = [btn1, btn2, btn3]
+    buttons = ["Сейчас",
+               "Указать предмет",
+               "Отмена"]
     for btn in buttons:
-        markup.row(btn)
+        markup.row(types.KeyboardButton(btn))
     return markup
