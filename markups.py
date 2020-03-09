@@ -2,7 +2,7 @@ from telebot import types
 
 
 def main():
-    '''маркап главного меню'''
+    """маркап главного меню"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 
     buttons = ["Показать расписание",
@@ -16,7 +16,7 @@ def main():
 
 
 def show_timetable():
-    '''подменю показа расписания'''
+    """подменю показа расписания"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 
     buttons = ["На сегодня",
@@ -29,15 +29,15 @@ def show_timetable():
 
 
 def cancel():
-    '''маркап отмены'''
+    """маркап отмены"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
     btn1 = types.KeyboardButton("Отмена")
-    murkup.row(btn1)
+    markup.row(btn1)
     return markup
 
 
 def name_teacher():
-    '''подменю ФИО преподавателя'''
+    """подменю ФИО преподавателя"""
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
 
     buttons = ["Сейчас",

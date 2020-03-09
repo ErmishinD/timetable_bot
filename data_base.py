@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -152,4 +152,3 @@ Base.metadata.create_all(engine)
 
 # Пример добавления в базу
 # Pair(_данные_).add_to_base()
-
