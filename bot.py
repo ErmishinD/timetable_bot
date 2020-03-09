@@ -1,14 +1,17 @@
 from telebot import TeleBot
 import data_base
+import markups as mk
 
 bot = TeleBot('1107223113:AAEx7XU3s4vLbEpyfTMk7_73lLA1KtQi-Mc')
 
+groups = ["6.12.19-2"]
+sub_groups = ["1", "2"]
 
 @bot.message_handler(commands=['start'])
 def hello(message):
     chat_id = message.chat.id
     bot.send_message(chat_id, 'Приветсвую!')
-    msg = bot.send_message(chat_id, 'Введите вашу группу:')
+    msg = bot.send_message(chat_id, 'Введите вашу группу:', reply_markup=mk.choose_item(groups))
     bot.register_next_step_handler(msg, take_group)
 
 
@@ -16,7 +19,7 @@ def hello(message):
 def take_group(message):
     chat_id = message.chat.id
     group = message.text
-    msg = bot.send_message(chat_id, 'Выберите подгруппу:')
+    msg = bot.send_message(chat_id, 'Выберите подгруппу:', reply_markup=mk.choose_item(sub_groups))
     bot.register_next_step_handler(msg, take_sub_group, group)
 
 
