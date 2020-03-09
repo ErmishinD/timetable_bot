@@ -1,6 +1,17 @@
 from telebot import types
 
 
+def choose_item(items):
+    '''выбор факультета/специальности/группы/курса'''
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+
+    for item in items:
+        markup.row(types.KeyboardButton(item))
+
+    markup.row("Отмена")
+    return markup
+
+
 def main():
     '''маркап главного меню'''
     markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
