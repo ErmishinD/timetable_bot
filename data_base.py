@@ -2,6 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, String, Integer, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.expression import update
 
 # Создание объекта 'engine' для подключения к БД
 engine = create_engine('sqlite:///data_base.db', echo=True)
@@ -57,6 +58,19 @@ class User(Base):
 
         session.add(add)
         session.commit()
+
+    def change_group(chat_id, new_group):
+        """Функция изменения группы пользователя"""
+        conn = engine.connect()  # Создания соединения с таблицей
+        update_group = update(User).where(User.chat_id == chat_id).values(group=new_group)  # Обновление данных
+        conn.execute(update_group)  # Выполнение команды
+        conn.close()  # Закрытие соединения с таблицей
+
+    def change_action(chat_id, action):
+        conn = engine.connect()  # Создания соединения с таблицей
+        update_action = update(User).where(User.chat_id == chat_id).values(action_flag=action)  # Обновление данных
+        conn.execute(update_action)  # Выполнение команды
+        conn.close()  # Закрытие соединения с таблицей
 
 
 class Pair(Base):
