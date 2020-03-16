@@ -71,14 +71,25 @@ class User(Base):
         conn = engine.connect()  # Создания соединения с таблицей
         update_sub_group = update(User).where(User.chat_id == chat_id).values(sub_group=new_sub_group)  # Обновление данных
         conn.execute(update_sub_group)  # Выполнение команды
-        conn.close()  # Закрытие соединения с таблицей
-
 
     def change_action(chat_id, action):
         conn = engine.connect()  # Создания соединения с таблицей
         update_action = update(User).where(User.chat_id == chat_id).values(action_flag=action)  # Обновление данных
         conn.execute(update_action)  # Выполнение команды
-        conn.close()  # Закрытие соединения с таблицей
+
+    def check_in_base(chat_id):
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = session.query(User.chat_id).filter(User.chat_id == chat_id).order_by(User.chat_id)
+        query = query.scalar()
+        print(query)
+
+        if query == None:
+            return True
+        else:
+            return False
+
 
 
 class Pair(Base):

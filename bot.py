@@ -28,10 +28,14 @@ def hello(message):
     else:
         is_admin = False
 
-    data_base.User(chat_id=chat_id, username=username, action_flag='main',
-                   is_admin=is_admin, group=group, sub_group=sub_group).add_to_base()
-
-    bot.send_message(chat_id, 'Ваша группа: {0} ({1})\nПоздравляю! Вы успешно зарегистрировались.'.format(group, sub_group), reply_markup=mk.main())
+    if data_base.User.check_in_base(chat_id):
+        data_base.User(chat_id=chat_id, username=username, action_flag='main',
+                       is_admin=is_admin, group=group, sub_group=sub_group).add_to_base()
+        bot.send_message(chat_id,
+                         'Ваша группа: {0} ({1})\nПоздравляю! Вы успешно зарегистрировались.'.format(group, sub_group),
+                         reply_markup=mk.main())
+    else:
+        bot.send_message(chat_id, 'Вы уже зарегистрированы!')
 
 
 @bot.message_handler(content_types=['text'])
