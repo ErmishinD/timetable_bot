@@ -66,6 +66,14 @@ class User(Base):
         conn.execute(update_group)  # Выполнение команды
         conn.close()  # Закрытие соединения с таблицей
 
+    def change_sub_group(chat_id, new_sub_group):
+        """Функция изменения подгруппы пользователя"""
+        conn = engine.connect()  # Создания соединения с таблицей
+        update_sub_group = update(User).where(User.chat_id == chat_id).values(sub_group=new_sub_group)  # Обновление данных
+        conn.execute(update_sub_group)  # Выполнение команды
+        conn.close()  # Закрытие соединения с таблицей
+
+
     def change_action(chat_id, action):
         conn = engine.connect()  # Создания соединения с таблицей
         update_action = update(User).where(User.chat_id == chat_id).values(action_flag=action)  # Обновление данных
