@@ -7,7 +7,7 @@ bot = TeleBot('1107223113:AAEx7XU3s4vLbEpyfTMk7_73lLA1KtQi-Mc')
 groups = ["6.1219-2"]
 sub_groups = ["1", "2"]
 
-def check_cancle(text):
+def check_cancel(text):
     if text == "Отмена":
         return False
     else:
@@ -41,10 +41,19 @@ def hello(message):
 @bot.message_handler(content_types=['text'])
 def change_group(message):
     chat_id = message.chat.id
+    data_base.User.change_action(chat_id, 'main')
     if message.text == 'Изменить группу':
         data_base.User.change_action(chat_id, 'change_group_step_1')
         msg = bot.send_message(chat_id, 'Выбирай группу:', reply_markup=mk.choose_item(groups))
         bot.register_next_step_handler(msg, take_group)
+    elif message.text == 'Показать расписание':
+        data_base.User.change_action(chat_id, 'show_timetable_step_1')
+        msg = bot.send_message(chat_id, 'Какое расписание Вас интересует?', reply_markup=mk.show_timetable())
+        bot.register_next_step_handler(msg, choose_timetable)
+    elif message.text == 'Как зовут преподавателя?':
+        data_base.User.change_action(chat_id, 'teacher_name_step_1')
+        msg = bot.send_message(chat_id, 'Какой преподаватель?', reply_markup=mk.name_teacher())
+        bot.register_next_step_handler(msg, choose_teacher)
     else:
         bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
 
@@ -53,7 +62,7 @@ def change_group(message):
 def take_group(message):
     chat_id = message.chat.id
     new_group = message.text
-    if check_cancle(new_group):
+    if check_cancel(new_group):
         data_base.User.change_action(chat_id, 'change_group_step_2')
         data_base.User.change_group(chat_id=chat_id, new_group=new_group)
         msg = bot.send_message(chat_id, f'Ваша группа изменена на {new_group}\nТеперь выбирай подгруппу:', reply_markup=mk.choose_item(sub_groups))
@@ -66,13 +75,37 @@ def take_group(message):
 def take_sub_group(message):
     chat_id = message.chat.id
     new_sub_group = message.text
-    if check_cancle(new_sub_group):
+    if check_cancel(new_sub_group):
         data_base.User.change_action(chat_id, 'change_group_step_3')
         data_base.User.change_sub_group(chat_id=chat_id, new_sub_group=new_sub_group)
         bot.send_message(chat_id, f'Ваша подгруппа изменена на {new_sub_group}', reply_markup=mk.main())
     else:
         msg = bot.send_message(chat_id, "Выбирай группу:", reply_markup=mk.choose_item(groups))
         bot.register_next_step_handler(msg, take_group)
+
+    data_base.User.change_action(chat_id, 'main')
+
+
+@bot.message_handler()
+def choose_timetable(message):
+    chat_id = message.chat.id
+    timetable_needed = message.text
+    data_base.User.change_action(chat_id, 'show_timetable_step_2')
+    if check_cancel(timetable_needed):
+        bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
+    else:
+        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+
+@bot.message_handler()
+def choose_teacher(message):
+    chat_id = message.chat.id
+    timetable_needed = message.text
+    data_base.User.change_action(chat_id, 'teacher_name_step_2')
+    if check_cancel(timetable_needed):
+        bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
+    else:
+        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+
 
 # bot.enable_save_next_step_handlers()
 # bot.load_next_step_handlers()

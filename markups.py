@@ -37,6 +37,7 @@ def show_timetable():
                "Расписание звонков"]
     for btn in buttons:
         markup.row(types.KeyboardButton(btn))
+    markup.row("Отмена")
     return markup
 
 
