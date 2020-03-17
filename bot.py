@@ -7,6 +7,7 @@ bot = TeleBot('1107223113:AAEx7XU3s4vLbEpyfTMk7_73lLA1KtQi-Mc')
 groups = ["6.1219-2"]
 sub_groups = ["1", "2"]
 
+
 def check_cancel(text):
     if text == "Отмена":
         return False
@@ -91,6 +92,11 @@ def choose_timetable(message):
     chat_id = message.chat.id
     timetable_needed = message.text
     data_base.User.change_action(chat_id, 'show_timetable_step_2')
+    query = data_base.Pair.get_week_schedule(chat_id)
+
+    for i in query:
+        bot.send_message(chat_id, i)
+
     if check_cancel(timetable_needed):
         bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
     else:

@@ -91,7 +91,6 @@ class User(Base):
             return False
 
 
-
 class Pair(Base):
     """Инициализация класса и таблицы в БД 'pair'.
 
@@ -178,6 +177,20 @@ class Pair(Base):
 
         session.add(add)
         session.commit()
+
+    def get_week_schedule(chat_id):
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = session.query(Pair.week_day,
+                              Pair.pair_start, Pair.pair_end,
+                              Pair.pair_name, Pair.lecture_hall,
+                              Pair.housing, Pair.form_of_pair,
+                              Pair.teacher).filter(Pair.week_form == 'числитель').filter(Pair.pair_name != '-')
+        query = list(query)
+        for i in range(len(query)):
+            print(query[i])
+            yield query[i]
 
 
 # Создание всех таблиц
