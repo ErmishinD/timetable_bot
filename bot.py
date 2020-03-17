@@ -1,4 +1,5 @@
 from telebot import TeleBot
+import datetime
 import data_base
 import markups as mk
 
@@ -15,24 +16,42 @@ def check_cancel(text):
         return True
 
 
-def format_week_query(query):
+def format_week_query(query, current_day=""):
     text = ""
 
-    current_day = query[0][0]
-    text += current_day.upper() + ":\n"
+    if current_day == "":
+        current_day = query[0][0]
+        text += current_day.upper() + ":\n"
 
-    for item in query:
-        if item[0] == current_day:
-            text += item[1] + " ~ " + item[2] + " - " + item[3]
-            text += " в " + item[4] + " ауд.(" + item[5] + ") - "
-            text += item[6] + ", которую ведет " + item[7] +"\n"
-        else:
-            current_day = item[0]
-            text += "\n" + current_day.upper() + ":\n"
-            text += item[1] + " ~ " + item[2] + " - " + item[3]
-            text += " в " + item[4] + " ауд.(" + item[5] + ") - "
-            text += item[6] + ", которую ведет " + item[7] +"\n"
-    return text
+        for item in query:
+            if item[0] == current_day:
+                text += item[1] + " ~ " + item[2] + " - " + item[3]
+                text += " в " + item[4] + " ауд.(" + item[5] + ") - "
+                text += item[6] + ", которую ведет " + item[7] +"\n\n"
+            else:
+                current_day = item[0]
+                text += "\n\n" + current_day.upper() + ":\n"
+                text += item[1] + " ~ " + item[2] + " - " + item[3]
+                text += " в " + item[4] + " ауд.(" + item[5] + ") - "
+                text += item[6] + ", которую ведет " + item[7] +"\n\n"
+        return text
+    else:
+        day_name = {0:"понедельник",
+                    1:"вторник",
+                    2:"среда",
+                    3:"четверг",
+                    4:"пятница",
+                    5:"суббота",
+                    6:"воскресенье"}
+        current_day = day_name[current_day]
+        text += current_day.upper() + ":\n"
+        for item in query:
+            if item[0] == current_day:
+                text += item[1] + " ~ " + item[2] + " - " + item[3]
+                text += " в " + item[4] + " ауд.(" + item[5] + ") - "
+                text += item[6] + ", которую ведет " + item[7] +"\n\n"
+        return text
+
 
 
 @bot.message_handler(commands=['start'])
@@ -120,7 +139,20 @@ def choose_timetable(message):
         if message.text == "Не неделю":
             query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, "числитель")
             result = format_week_query(query)
-            bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+            msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+            bot.register_next_step_handler(msg, choose_timetable)
+        elif message.text == "На сегодня":
+            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, "числитель")
+            current_weekday = datetime.datetime.weekday(datetime.datetime.now())
+            result = format_week_query(query, current_weekday)
+            msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+            bot.register_next_step_handler(msg, choose_timetable)
+        elif message.text == "На завтра":
+            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, "числитель")
+            current_weekday = datetime.datetime.weekday(datetime.datetime.now())
+            result = format_week_query(query, current_weekday+1)
+            msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+            bot.register_next_step_handler(msg, choose_timetable)
         else:
             bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
     else:
