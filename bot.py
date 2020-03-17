@@ -113,15 +113,19 @@ def choose_timetable(message):
     timetable_needed = message.text
     data_base.User.change_action(chat_id, 'show_timetable_step_2')
 
+    group = data_base.User.get_group(chat_id)
+    sub_group = data_base.User.get_sub_group(chat_id)
+    
     if check_cancel(timetable_needed):
         if message.text == "Не неделю":
-            query = data_base.Pair.get_week_schedule(chat_id, "6.1219-2", 1, "числитель")
+            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, "числитель")
             result = format_week_query(query)
             bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
         else:
             bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
     else:
         bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+
 
 @bot.message_handler()
 def choose_teacher(message):

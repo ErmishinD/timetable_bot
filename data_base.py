@@ -90,6 +90,27 @@ class User(Base):
         else:
             return False
 
+    def get_group(chat_id):
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = session.query(User.group).filter(User.chat_id == chat_id)
+        query = query.scalar()
+
+        print(query)
+        return query
+
+
+    def get_sub_group(chat_id):
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = session.query(User.sub_group).filter(User.chat_id == chat_id)
+        query = query.scalar()
+
+        print(query)
+        return query
+
 
 class Pair(Base):
     """Инициализация класса и таблицы в БД 'pair'.
