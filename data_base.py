@@ -178,7 +178,7 @@ class Pair(Base):
         session.add(add)
         session.commit()
 
-    def get_week_schedule(chat_id):
+    def get_week_schedule(chat_id, group, sub_group, week_form):
         session_make = sessionmaker(engine)
         session = session_make()
 
@@ -186,12 +186,9 @@ class Pair(Base):
                               Pair.pair_start, Pair.pair_end,
                               Pair.pair_name, Pair.lecture_hall,
                               Pair.housing, Pair.form_of_pair,
-                              Pair.teacher).filter(Pair.week_form == 'числитель').filter(Pair.pair_name != '-')
+                              Pair.teacher).filter(Pair.week_form == week_form).filter(Pair.pair_name != '-').filter(Pair.group == group).filter(Pair.sub_group == sub_group)
         query = list(query)
-        for i in range(len(query)):
-            print(query[i])
-            yield query[i]
-
+        return query
 
 # Создание всех таблиц
 Base.metadata.create_all(engine)

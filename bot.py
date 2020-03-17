@@ -15,6 +15,26 @@ def check_cancel(text):
         return True
 
 
+def format_week_query(query):
+    text = ""
+
+    current_day = query[0][0]
+    text += current_day.upper() + ":\n"
+
+    for item in query:
+        if item[0] == current_day:
+            text += item[1] + " ~ " + item[2] + " - " + item[3]
+            text += " в " + item[4] + " ауд.(" + item[5] + ") - "
+            text += item[6] + ", которую ведет " + item[7] +"\n"
+        else:
+            current_day = item[0]
+            text += "\n" + current_day.upper() + ":\n"
+            text += item[1] + " ~ " + item[2] + " - " + item[3]
+            text += " в " + item[4] + " ауд.(" + item[5] + ") - "
+            text += item[6] + ", которую ведет " + item[7] +"\n"
+    return text
+
+
 @bot.message_handler(commands=['start'])
 def hello(message):
     chat_id = message.chat.id
@@ -92,13 +112,14 @@ def choose_timetable(message):
     chat_id = message.chat.id
     timetable_needed = message.text
     data_base.User.change_action(chat_id, 'show_timetable_step_2')
-    query = data_base.Pair.get_week_schedule(chat_id)
-
-    for i in query:
-        bot.send_message(chat_id, i)
 
     if check_cancel(timetable_needed):
-        bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
+        if message.text == "Не неделю":
+            query = data_base.Pair.get_week_schedule(chat_id, "6.1219-2", 1, "числитель")
+            result = format_week_query(query)
+            bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+        else:
+            bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
     else:
         bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
 
