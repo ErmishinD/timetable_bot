@@ -55,6 +55,13 @@ def format_week_query(query, current_day=""):
         return text
 
 
+def get_current_week_form():
+    if (datetime.datetime.now().isocalendar()[1]) % 2 == 0:
+        return "числитель"
+    else:
+        return "знаменатель"
+
+
 
 @bot.message_handler(commands=['start'])
 def hello(message):
@@ -130,19 +137,22 @@ def choose_timetable(message):
     sub_group = data_base.User.get_sub_group(chat_id)
     
     if check_cancel(timetable_needed):
+
+        current_week_form = get_current_week_form()
+
         if message.text == "Не неделю":
-            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, "числитель")
+            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, current_week_form)
             result = format_week_query(query)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
             bot.register_next_step_handler(msg, choose_timetable)
         elif message.text == "На сегодня":
-            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, "числитель")
+            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, current_week_form)
             current_weekday = datetime.datetime.weekday(datetime.datetime.now())
             result = format_week_query(query, current_weekday)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
             bot.register_next_step_handler(msg, choose_timetable)
         elif message.text == "На завтра":
-            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, "числитель")
+            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, current_week_form)
             current_weekday = datetime.datetime.weekday(datetime.datetime.now())
             result = format_week_query(query, current_weekday+1)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
