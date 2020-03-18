@@ -55,12 +55,24 @@ def format_week_query(query, current_day=""):
         return text
 
 
+def get_call_schedule():
+    pair_number = list("12345678")
+    time_start = ["8-00", "9-35", "11-25", "12-55", "14-30", "16-05", "17-40", "19-10"]
+    time_end = ["9-20", "10-55", "12-45", "14-15", "15-50", "17-25", "19-00", "20-30"]
+    
+    text = ""
+    for i, start, end in zip(pair_number, time_start, time_end):
+        text += i + "-я пара с " + start + " до " + end + "\n"
+
+    return text
+
+
+
 def get_current_week_form():
     if (datetime.datetime.now().isocalendar()[1]) % 2 == 0:
         return "числитель"
     else:
         return "знаменатель"
-
 
 
 @bot.message_handler(commands=['start'])
@@ -127,7 +139,6 @@ def take_sub_group(message):
         bot.register_next_step_handler(msg, take_group)
 
 
-
 @bot.message_handler()
 def choose_timetable(message):
     chat_id = message.chat.id
@@ -157,8 +168,12 @@ def choose_timetable(message):
             result = format_week_query(query, current_weekday+1)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
             bot.register_next_step_handler(msg, choose_timetable)
+        elif message.text == "Расписание звонков":
+            call_schedule = get_call_schedule()
+            msg = bot.send_message(chat_id, call_schedule, reply_markup=mk.show_timetable())
+            bot.register_next_step_handler(msg, choose_timetable)
         else:
-            bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
+            bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
     else:
         bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
 
