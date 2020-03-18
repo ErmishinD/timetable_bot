@@ -16,6 +16,14 @@ def check_cancel(text):
         return True
 
 
+def format_pair(item):
+    text = ""
+    text += item[1] + " ~ " + item[2] + " - " + item[3]
+    text += " в " + item[4] + " ауд.(" + item[5] + ") - "
+    text += item[6] + ", которую ведет " + item[7] +"\n\n"
+    return text
+
+
 def format_week_query(query, current_day=""):
     text = ""
 
@@ -25,15 +33,11 @@ def format_week_query(query, current_day=""):
 
         for item in query:
             if item[0] == current_day:
-                text += item[1] + " ~ " + item[2] + " - " + item[3]
-                text += " в " + item[4] + " ауд.(" + item[5] + ") - "
-                text += item[6] + ", которую ведет " + item[7] +"\n\n"
+                text += format_pair(item)
             else:
                 current_day = item[0]
                 text += "\n\n" + current_day.upper() + ":\n"
-                text += item[1] + " ~ " + item[2] + " - " + item[3]
-                text += " в " + item[4] + " ауд.(" + item[5] + ") - "
-                text += item[6] + ", которую ведет " + item[7] +"\n\n"
+                text += format_pair(item)
         return text
     else:
         day_name = {0:"понедельник",
@@ -47,9 +51,7 @@ def format_week_query(query, current_day=""):
         text += current_day.upper() + ":\n"
         for item in query:
             if item[0] == current_day:
-                text += item[1] + " ~ " + item[2] + " - " + item[3]
-                text += " в " + item[4] + " ауд.(" + item[5] + ") - "
-                text += item[6] + ", которую ведет " + item[7] +"\n\n"
+                text += format_pair(item)
         return text
 
 
