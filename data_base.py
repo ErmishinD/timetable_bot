@@ -18,8 +18,6 @@ class User(Base):
     :type chat_id: int.
     :param username: Имя аккаунта юзера.
     :type username: str.
-    :param action_flag: В каком меню бота сейчас находится человек.
-    :type action_flag: str.
     :param is_admin: Проверка на админа (Я или Дима).
     :type is_admin: bool.
     :param group: Шифр группы.
@@ -32,28 +30,26 @@ class User(Base):
     id = Column(Integer, primary_key=True, nullable=False)
     chat_id = Column(Integer, nullable=False)
     username = Column(String, nullable=False)
-    action_flag = Column(String, nullable=False)
     is_admin = Column(Boolean, nullable=False)
     group = Column(String, nullable=False)
     sub_group = Column(Integer, nullable=False)
 
-    def __init__(self, chat_id, username, action_flag, is_admin, group, sub_group):
+    def __init__(self, chat_id, username, is_admin, group, sub_group):
         self.chat_id = chat_id
         self.username = username
-        self.action_flag = action_flag
         self.is_admin = is_admin
         self.group = group
         self.sub_group = sub_group
 
     def __repr__(self):
-        return "User<(%s, %s, %s, %s, %s, %s)>" % (self.chat_id, self.username, self.action_flag,
+        return "User<(%s, %s, %s, %s, %s, %s)>" % (self.chat_id, self.username,
                                                    self.is_admin, self.group, self.sub_group)
 
     def add_to_base(self):
         session_make = sessionmaker(engine)
         session = session_make()
 
-        add = User(chat_id=self.chat_id, username=self.username, action_flag=self.action_flag,
+        add = User(chat_id=self.chat_id, username=self.username,
                    is_admin=self.is_admin, group=self.group, sub_group=self.sub_group)
 
         session.add(add)
@@ -71,11 +67,6 @@ class User(Base):
         conn = engine.connect()  # Создания соединения с таблицей
         update_sub_group = update(User).where(User.chat_id == chat_id).values(sub_group=new_sub_group)  # Обновление данных
         conn.execute(update_sub_group)  # Выполнение команды
-
-    def change_action(chat_id, action):
-        conn = engine.connect()  # Создания соединения с таблицей
-        update_action = update(User).where(User.chat_id == chat_id).values(action_flag=action)  # Обновление данных
-        conn.execute(update_action)  # Выполнение команды
 
     def check_in_base(chat_id):
         session_make = sessionmaker(engine)
