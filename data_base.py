@@ -42,8 +42,8 @@ class User(Base):
         self.sub_group = sub_group
 
     def __repr__(self):
-        return "User<(%s, %s, %s, %s, %s, %s)>" % (self.chat_id, self.username,
-                                                   self.is_admin, self.group, self.sub_group)
+        return "User<(%s, %s, %s, %s, %s)>" % (self.chat_id, self.username,
+                                               self.is_admin, self.group, self.sub_group)
 
     def add_to_base(self):
         session_make = sessionmaker(engine)
@@ -55,19 +55,21 @@ class User(Base):
         session.add(add)
         session.commit()
 
+    @staticmethod
     def change_group(chat_id, new_group):
         """Функция изменения группы пользователя"""
         conn = engine.connect()  # Создания соединения с таблицей
         update_group = update(User).where(User.chat_id == chat_id).values(group=new_group)  # Обновление данных
         conn.execute(update_group)  # Выполнение команды
-        conn.close()  # Закрытие соединения с таблицей
 
+    @staticmethod
     def change_sub_group(chat_id, new_sub_group):
         """Функция изменения подгруппы пользователя"""
         conn = engine.connect()  # Создания соединения с таблицей
         update_sub_group = update(User).where(User.chat_id == chat_id).values(sub_group=new_sub_group)  # Обновление данных
         conn.execute(update_sub_group)  # Выполнение команды
 
+    @staticmethod
     def check_in_base(chat_id):
         session_make = sessionmaker(engine)
         session = session_make()
@@ -81,6 +83,7 @@ class User(Base):
         else:
             return False
 
+    @staticmethod
     def get_group(chat_id):
         session_make = sessionmaker(engine)
         session = session_make()
@@ -91,7 +94,7 @@ class User(Base):
         print(query)
         return query
 
-
+    @staticmethod
     def get_sub_group(chat_id):
         session_make = sessionmaker(engine)
         session = session_make()
@@ -190,6 +193,7 @@ class Pair(Base):
         session.add(add)
         session.commit()
 
+    @staticmethod
     def get_week_schedule(chat_id, group, sub_group, week_form):
         """Получить расписание на неделю"""
 
@@ -208,6 +212,7 @@ class Pair(Base):
         query = list(query)
         return query
 
+    @staticmethod
     def get_day_schedule(chat_id, group, sub_group, week_form, week_day):
         """Получить расписание на день"""
         session_make = sessionmaker(engine)
@@ -229,7 +234,7 @@ class Pair(Base):
         else:
             return None
 
-
+    @staticmethod
     def get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end):
         """Получить расписание текущей пары"""
 
@@ -253,6 +258,19 @@ class Pair(Base):
             return query
         else:
             return None
+
+    @staticmethod
+    def give_teacher(chat_id, group, sub_group, pair_name):
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = session.query(Pair.teacher).filter(
+            Pair.group == group).filter(
+            Pair.sub_group == sub_group).filter(
+            Pair.pair_name == pair_name)
+
+        return list(query)
+
 
 # Создание всех таблиц
 Base.metadata.create_all(engine)

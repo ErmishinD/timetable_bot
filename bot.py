@@ -39,7 +39,7 @@ def format_pair(item):
     if item:
         text += item[1] + " ~ " + item[2] + " - " + item[3]
         text += " в " + item[4] + " ауд.(" + item[5] + ") - "
-        text += item[6] + ", которую ведет " + item[7] +"\n\n"
+        text += item[6] + ", которую ведет " + item[7] + "\n\n"
     return text
 
 
@@ -101,6 +101,7 @@ def format_minute(minute):
         minute = "0" + minute
     return minute
 
+
 def get_time_start_end():
     # преобразовать строки массива во время (час, минута)
     time_start = ["8-00", "9-35", "11-25", "12-55", "14-30", "16-05", "17-40", "19-10"]
@@ -155,7 +156,8 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
             pair_start, pair_end = get_str_time_start_end(time_start, time_end, i)
 
             text += "Сейчас:\n"
-            query = data_base.Pair.get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end)
+            query = data_base.Pair.get_current_pair(chat_id, group, sub_group,
+                                                    week_form, week_day, pair_start, pair_end)
             if query:
                 text += format_pair(query[0])
             else:
@@ -166,13 +168,13 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
                         week_day, week_form = get_next_week_day_form(week_day, week_form)
                     
                     pair_start, pair_end = get_str_time_start_end(time_start, time_end, i)
-                    query = data_base.Pair.get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end)
+                    query = data_base.Pair.get_current_pair(chat_id, group, sub_group,
+                                                            week_form, week_day, pair_start, pair_end)
                 text = "Следующая пара:\n"
                 text += week_day.upper() + ":\n\n"
                 text += format_pair(query[0])
                 
             break
-
 
     # если пара в данный момент не идет, то найти следующую
     if not pair_found:
@@ -356,8 +358,13 @@ def choose_teacher(message):
     """Узнать ФИО преподавателя"""
     chat_id = message.chat.id
     timetable_needed = message.text
-    if check_cancel(timetable_needed):
-        bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
+    group = data_base.User.get_group(chat_id)
+    sub_group = data_base.User.get_sub_group(chat_id)
+    # pair_name = СЮДА НУЖНО ВПИСАТЬ ПАРУ СЕЙЧАС
+
+    if message.text == 'Сейчас':
+        bot.send_message(chat_id, data_base.Pair.give_teacher(chat_id, group, sub_group, pair_name))
+        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
     else:
         bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
 
