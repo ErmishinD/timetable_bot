@@ -8,18 +8,19 @@ bot = TeleBot('1107223113:AAEx7XU3s4vLbEpyfTMk7_73lLA1KtQi-Mc')
 groups = ["6.1219-2"]
 sub_groups = ["1", "2"]
 
-week_days = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье", "понедельник"]
+week_days = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
 
 
 def get_current_week_day(current_day):
     """Определение текущего дня недели"""
     day_name = {0:"понедельник",
-                    1:"вторник",
-                    2:"среда",
-                    3:"четверг",
-                    4:"пятница",
-                    5:"суббота",
-                    6:"воскресенье"}
+                1:"вторник",
+                2:"среда",
+                3:"четверг",
+                4:"пятница",
+                5:"суббота",
+                6:"воскресенье"}
+    current_day = current_day % 7
     current_day = day_name[current_day]
     return current_day
 
@@ -35,34 +36,40 @@ def check_cancel(text):
 def format_pair(item):
     """Отформатировать вывод информации о паре"""
     text = ""
-    text += item[1] + " ~ " + item[2] + " - " + item[3]
-    text += " в " + item[4] + " ауд.(" + item[5] + ") - "
-    text += item[6] + ", которую ведет " + item[7] +"\n\n"
+    if item:
+        text += item[1] + " ~ " + item[2] + " - " + item[3]
+        text += " в " + item[4] + " ауд.(" + item[5] + ") - "
+        text += item[6] + ", которую ведет " + item[7] +"\n\n"
     return text
 
 
-def format_week_query(query, current_day=""):
+def format_day_query(query, week_day):
+    """Отформатировать расписание на день"""
+    text = week_day.upper() + ":\n"
+    
+    if query:
+        for item in query:
+            if item[0] == week_day:
+                text += format_pair(item)
+            else:
+                week_day = item[0]
+                text += "\n\n" + week_day.upper() + ":\n"
+                text += format_pair(item)
+    return text
+
+
+def format_week_query(query):
     """Отформатировать расписание на неделю"""
     text = ""
 
-    if current_day == "":
-        current_day = query[0][0]
-        text += current_day.upper() + ":\n"
-
-        for item in query:
-            if item[0] == current_day:
-                text += format_pair(item)
-            else:
-                current_day = item[0]
-                text += "\n\n" + current_day.upper() + ":\n"
-                text += format_pair(item)
-        return text
-    else:
-        text += current_day.upper() + ":\n"
-        for item in query:
-            if item[0] == current_day:
-                text += format_pair(item)
-        return text
+    current_day = query[0][0]
+    text += current_day.upper() + ":\n"
+    for item in query:
+        if item[0] != current_day:
+            current_day = item[0]
+            text += "\n\n" + current_day.upper() + ":\n"
+        text += format_pair(item)
+    return text
 
 
 def get_call_schedule():
@@ -92,16 +99,7 @@ def format_minute(minute):
         minute = "0" + minute
     return minute
 
-
-def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
-    """Отформатировать текущую пару"""
-    text = ""
-
-    # узнать текущее время
-    now = datetime.datetime.now()
-    current_time = datetime.time(hour=now.hour, minute=now.minute)
-
-
+def get_time_start_end():
     # преобразовать строки массива во время (час, минута)
     time_start = ["8-00", "9-35", "11-25", "12-55", "14-30", "16-05", "17-40", "19-10"]
     time_end = ["9-20", "10-55", "12-45", "14-15", "15-50", "17-25", "19-00", "20-30"]
@@ -111,7 +109,19 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
         
         time_start[i] = datetime.time(hour=int(time_start[i][0]), minute=int(time_start[i][1]), second=0)
         time_end[i] = datetime.time(hour=int(time_end[i][0]), minute=int(time_end[i][1]), second=0)
+    return [time_start, time_end]
 
+
+def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
+    """Отформатировать текущую пару"""
+    text = ""
+
+    # узнать текущее время
+    now = datetime.datetime.now()
+    current_time = datetime.time(hour=now.hour, minute=now.minute)
+
+    # получить два массива с временем (час, минута)
+    time_start, time_end = get_time_start_end()
 
     # найти текущую пару (которая идет в данный момент)
     pair_found = False
@@ -123,10 +133,11 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
 
             text += "Сейчас:\n"
             query = data_base.Pair.get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end)
-            if query != []:
+            if query:
                 text += format_pair(query[0])
             else:
-                # делать запросы в БД со следующим временем (если нужно, то мнять  на следующий день)
+                # TODO
+                # делать запросы в БД со следующим временем (если нужно, то менять  на следующий день)
                 # делать эти запросы до тех пор, пока не будет найдена пара (при этом указать день недели)
                 pass
             break
@@ -149,7 +160,7 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
         # искать пару в завтрашнем дне, если сегодня пар больше нет
         if not pair_found:
             i = 0
-            week_day = week_days[week_days.index(week_day)+1]
+            week_day = week_days[(week_days.index(week_day)+1) % 7]
 
         # преобразование времени (час, минута) в строки
         pair_start = str(time_start[i+1].hour) + "-" + format_minute(str(time_start[i+1].minute))
@@ -161,6 +172,7 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
         if query != []:
             text += format_pair(query[0])
         else:
+            # TODO
             # делать запросы в БД со следующим временем (если нужно, то мнять  на следующий день)
             # делать эти запросы до тех пор, пока не будет найдена пара (при этом указать день недели)
             pass
@@ -263,16 +275,18 @@ def choose_timetable(message):
             bot.register_next_step_handler(msg, choose_timetable)
         
         elif message.text == "На сегодня":
-            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, current_week_form)
             current_weekday = datetime.datetime.weekday(datetime.datetime.now())
-            result = format_week_query(query, get_current_week_day(current_weekday))
+            current_weekday = get_current_week_day(current_weekday)
+            query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
+            result = format_day_query(query, current_weekday)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
             bot.register_next_step_handler(msg, choose_timetable)
         
         elif message.text == "На завтра":
-            query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, current_week_form)
             current_weekday = datetime.datetime.weekday(datetime.datetime.now())
-            result = format_week_query(query, get_current_week_day(current_weekday+1))
+            current_weekday = get_current_week_day(current_weekday+1)
+            query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
+            result = format_day_query(query, current_weekday)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
             bot.register_next_step_handler(msg, choose_timetable)
         

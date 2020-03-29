@@ -191,6 +191,8 @@ class Pair(Base):
         session.commit()
 
     def get_week_schedule(chat_id, group, sub_group, week_form):
+        """Получить расписание на неделю"""
+
         session_make = sessionmaker(engine)
         session = session_make()
 
@@ -198,11 +200,16 @@ class Pair(Base):
                               Pair.pair_start, Pair.pair_end,
                               Pair.pair_name, Pair.lecture_hall,
                               Pair.housing, Pair.form_of_pair,
-                              Pair.teacher).filter(Pair.week_form == week_form).filter(Pair.pair_name != '-').filter(Pair.group == group).filter(Pair.sub_group == sub_group)
+                              Pair.teacher).filter(
+                              Pair.week_form == week_form).filter(
+                              Pair.pair_name != '-').filter(
+                              Pair.group == group).filter(
+                              Pair.sub_group == sub_group)
         query = list(query)
         return query
 
-    def get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end):
+    def get_day_schedule(chat_id, group, sub_group, week_form, week_day):
+        """Получить расписание на день"""
         session_make = sessionmaker(engine)
         session = session_make()
 
@@ -210,10 +217,42 @@ class Pair(Base):
                               Pair.pair_start, Pair.pair_end,
                               Pair.pair_name, Pair.lecture_hall,
                               Pair.housing, Pair.form_of_pair,
-                              Pair.teacher).filter(Pair.week_form == week_form).filter(Pair.pair_name != '-').filter(Pair.group == group).filter(Pair.sub_group == sub_group).filter(Pair.week_day == week_day).filter(Pair.pair_start == pair_start).filter(Pair.pair_end == pair_end)
-        
-        return query
+                              Pair.teacher).filter(
+                              Pair.week_form == week_form).filter(
+                              Pair.pair_name != '-').filter(
+                              Pair.group == group).filter(
+                              Pair.sub_group == sub_group).filter(
+                              Pair.week_day == week_day)
+        query = list(query)
+        if query:
+            return query
+        else:
+            return None
 
+
+    def get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end):
+        """Получить расписание текущей пары"""
+
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = session.query(Pair.week_day,
+                              Pair.pair_start, Pair.pair_end,
+                              Pair.pair_name, Pair.lecture_hall,
+                              Pair.housing, Pair.form_of_pair,
+                              Pair.teacher).filter(
+                              Pair.week_form == week_form).filter(
+                              Pair.pair_name != '-').filter(
+                              Pair.group == group).filter(
+                              Pair.sub_group == sub_group).filter(
+                              Pair.week_day == week_day).filter(
+                              Pair.pair_start == pair_start).filter(
+                              Pair.pair_end == pair_end)
+        query = list(query)
+        if query:
+            return query
+        else:
+            return None
 
 # Создание всех таблиц
 Base.metadata.create_all(engine)
