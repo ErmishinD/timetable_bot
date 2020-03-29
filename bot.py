@@ -328,6 +328,11 @@ def choose_timetable(message):
         elif message.text == "На завтра":
             current_weekday = datetime.datetime.weekday(datetime.datetime.now())
             current_weekday = get_current_week_day(current_weekday+1)
+            if current_weekday == "воскресенье":
+                if current_week_form == "числитель":
+                    current_week_form = "знаменатель"
+                else:
+                    current_week_form = "числитель"
             query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
             result = format_day_query(query, current_weekday)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
