@@ -112,7 +112,28 @@ def get_time_start_end():
     return [time_start, time_end]
 
 
+def get_str_time_start_end(time_start, time_end, i):
+    pair_start = str(time_start[i].hour) + "-" + format_minute(str(time_start[i].minute))
+    pair_end = str(time_end[i].hour) + "-" + format_minute(str(time_end[i].minute))
+    return [pair_start, pair_end]
+
+
+def get_next_week_day_form(week_day, week_form):
+    current_week_day_number = week_days.index(week_day) + 1
+    if current_week_day_number >= len(week_days):
+        current_week_day_number = current_week_day_number % len(week_days)
+        if week_form == "числитель":
+            week_form = "знаменатель"
+        else:
+            week_form = "числитель"
+    week_day = week_days[current_week_day_number]
+
+    return [week_day, week_form]
+
+
 def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
+    # TODO
+    # оптимизировать данную функцию
     """Отформатировать текущую пару"""
     text = ""
 
@@ -128,18 +149,26 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
     for i in range(len(time_start)):
         if time_start[i] <= current_time <= time_end[i]:
             pair_found = True
-            pair_start = str(time_start[i].hour) + "-" + format_minute(str(time_start[i].minute))
-            pair_end = str(time_end[i].hour) + "-" + format_minute(str(time_end[i].minute))
+            # получить две строки с временем
+            pair_start, pair_end = get_str_time_start_end(time_start, time_end, i)
 
             text += "Сейчас:\n"
             query = data_base.Pair.get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end)
             if query:
                 text += format_pair(query[0])
             else:
-                # TODO
-                # делать запросы в БД со следующим временем (если нужно, то менять  на следующий день)
-                # делать эти запросы до тех пор, пока не будет найдена пара (при этом указать день недели)
-                pass
+                while not query:
+                    i += 1
+                    if i >= len(time_start):
+                        i = 0
+                        week_day, week_form = get_next_week_day_form(week_day, week_form)
+                    
+                    pair_start, pair_end = get_str_time_start_end(time_start, time_end, i)
+                    query = data_base.Pair.get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end)
+                text = "Следующая пара:\n"
+                text += week_day.upper() + ":\n\n"
+                text += format_pair(query[0])
+                
             break
 
 
@@ -169,13 +198,19 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
         text += "Следующая пара:\n"
         query = data_base.Pair.get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end)
         
-        if query != []:
+        if query:
             text += format_pair(query[0])
         else:
-            # TODO
-            # делать запросы в БД со следующим временем (если нужно, то мнять  на следующий день)
-            # делать эти запросы до тех пор, пока не будет найдена пара (при этом указать день недели)
-            pass
+            while not query:
+                    i += 1
+                    if i >= len(time_start):
+                        i = 0
+                        week_day, week_form = get_next_week_day_form(week_day, week_form)
+                    
+                    pair_start, pair_end = get_str_time_start_end(time_start, time_end, i)
+                    query = data_base.Pair.get_current_pair(chat_id, group, sub_group, week_form, week_day, pair_start, pair_end)
+            text += week_day.upper() + ":\n\n"
+            text += format_pair(query[0])
     return text
 
 
@@ -269,6 +304,14 @@ def choose_timetable(message):
     
     if check_cancel(message.text):
         if message.text == "Не неделю":
+            current_weekday = datetime.datetime.weekday(datetime.datetime.now())
+            current_weekday = get_current_week_day(current_weekday)
+            if current_weekday == "воскресенье":
+                if current_week_form == "числитель":
+                    current_week_form = "знаменатель"
+                else:
+                    current_week_form = "числитель"
+
             query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, current_week_form)
             result = format_week_query(query)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
