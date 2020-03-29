@@ -55,6 +55,8 @@ def format_day_query(query, week_day):
                 week_day = item[0]
                 text += "\n\n" + week_day.upper() + ":\n"
                 text += format_pair(item)
+    else:
+        text += "В этот день у Вас выходной!"
     return text
 
 
