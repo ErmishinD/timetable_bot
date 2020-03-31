@@ -360,11 +360,18 @@ def choose_teacher(message):
     timetable_needed = message.text
     group = data_base.User.get_group(chat_id)
     sub_group = data_base.User.get_sub_group(chat_id)
-    # pair_name = СЮДА НУЖНО ВПИСАТЬ ПАРУ СЕЙЧАС
+    current_week_form = get_current_week_form()
+    current_weekday = get_current_week_day(datetime.datetime.weekday(datetime.datetime.now()))
+    query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
 
     if message.text == 'Сейчас':
-        bot.send_message(chat_id, data_base.Pair.give_teacher(chat_id, group, sub_group, pair_name))
-        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        if query:
+            print(query)
+            pair_name = query[0][3]
+            bot.send_message(chat_id, data_base.Pair.give_teacher(chat_id, group, sub_group, pair_name))
+            bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        else:
+            bot.send_message(chat_id, "Сейчас пары нет.\nГлавное меню", reply_markup=mk.main())
     else:
         bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
 

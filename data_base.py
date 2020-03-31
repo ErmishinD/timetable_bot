@@ -269,7 +269,12 @@ class Pair(Base):
             Pair.sub_group == sub_group).filter(
             Pair.pair_name == pair_name)
 
-        return list(query)
+        query = list(query)
+
+        if query:
+            return query
+        else:
+            return None
 
 
 # Создание всех таблиц
