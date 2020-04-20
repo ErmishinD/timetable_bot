@@ -79,8 +79,10 @@ class User(Base):
         print(query)
 
         if query == None:
+            session.close()
             return True
         else:
+            session.close()
             return False
 
     @staticmethod
@@ -92,6 +94,7 @@ class User(Base):
         query = query.scalar()
 
         print(query)
+        session.close()
         return query
 
     @staticmethod
@@ -103,6 +106,7 @@ class User(Base):
         query = query.scalar()
 
         print(query)
+        session.close()
         return query
 
 
@@ -210,6 +214,7 @@ class Pair(Base):
                               Pair.group == group).filter(
                               Pair.sub_group == sub_group)
         query = list(query)
+        session.close()
         return query
 
     @staticmethod
@@ -230,8 +235,10 @@ class Pair(Base):
                               Pair.week_day == week_day)
         query = list(query)
         if query:
+            session.close()
             return query
         else:
+            session.close()
             return None
 
     @staticmethod
@@ -255,8 +262,10 @@ class Pair(Base):
                               Pair.pair_end == pair_end)
         query = list(query)
         if query:
+            session.close()
             return query
         else:
+            session.close()
             return None
 
     @staticmethod
@@ -272,8 +281,10 @@ class Pair(Base):
         query = list(query)
 
         if query:
+            session.close()
             return query
         else:
+            session.close()
             return None
 
     
@@ -287,8 +298,10 @@ class Pair(Base):
         query = list(query)
 
         if query:
+            session.close()
             return query
         else:
+            session.close()
             return None
 
 
