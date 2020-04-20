@@ -58,3 +58,14 @@ def name_teacher():
     for btn in buttons:
         markup.row(types.KeyboardButton(btn))
     return markup
+
+
+def scheduler():
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+
+    buttons = ['Расписание на текущий день',
+               "Расписание на следующий день",
+               "Расписание на всю неделю"]
+    for btn in buttons:
+        markup.row(types.KeyboardButton(btn))
+    return markup

@@ -29,7 +29,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     chat_id = Column(Integer, nullable=False)
-    username = Column(String, nullable=False)
+    username = Column(String, nullable=True)
     is_admin = Column(Boolean, nullable=False)
     group = Column(String, nullable=False)
     sub_group = Column(Integer, nullable=False)
@@ -305,7 +305,48 @@ class Pair(Base):
             return None
 
 
-# Создание всех таблиц
+class Scheduler(Base):
+    __tablename__ = 'scheduler'
+
+    id = Column(Integer, nullable=False, primary_key=True)
+    chat_id = Column(String, nullable=False)
+    command = Column(String, nullable=True)
+    task_type = Column(String, nullable=False)
+
+    def __init__(self, chat_id, command, task_type):
+        self.chat_id = chat_id
+        self.command = command
+        self.task_type = task_type
+
+    def add_task(self):
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        add = Scheduler(chat_id=self.chat_id, command=self.command, task_type=self.task_type)
+
+        session.add(add)
+        session.commit()
+
+    def remove_task(self):
+        pass
+
+    @staticmethod
+    def get_schedule():
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = Scheduler.all()
+
+        query = list(query)
+
+        if query:
+            session.close()
+            return query
+        else:
+            session.close()
+            return None
+
+        # Создание всех таблиц
 Base.metadata.create_all(engine)
 
 # Пример добавления в базу
