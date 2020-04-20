@@ -264,10 +264,25 @@ class Pair(Base):
         session_make = sessionmaker(engine)
         session = session_make()
 
-        query = session.query(Pair.teacher).filter(
+        query = session.query(Pair.teacher, Pair.form_of_pair).filter(
             Pair.group == group).filter(
             Pair.sub_group == sub_group).filter(
             Pair.pair_name == pair_name)
+
+        query = list(query)
+
+        if query:
+            return query
+        else:
+            return None
+
+    
+    @staticmethod
+    def get_all_pairs(chat_id, group):
+        session_make = sessionmaker(engine)
+        session = session_make()
+
+        query = session.query(Pair.pair_name).filter(Pair.group == group)
 
         query = list(query)
 

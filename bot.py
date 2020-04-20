@@ -218,6 +218,31 @@ def get_formated_current_pair(chat_id, group, sub_group, week_form, week_day):
     return text
 
 
+def get_formated_teacher(teachers):
+    uniqe_teachers = []
+
+    for teacher in teachers:
+        if teacher not in uniqe_teachers:
+            uniqe_teachers.append(teacher)
+
+    text = ""
+    for teacher in uniqe_teachers:
+        text += f'{teacher[0]} ведет {teacher[1]}.\n\n'
+
+    return text
+
+
+def get_formated_all_pairs(all_pairs):
+    uniqe_pairs = []
+
+    for pair in all_pairs:
+        if pair[0] != '-' and pair[0] not in uniqe_pairs :
+            uniqe_pairs.append(pair[0])
+
+    return uniqe_pairs
+
+
+
 @bot.message_handler(commands=['start'])
 def hello(message):
     """Регистрация пользователя и занесение его в БД"""
@@ -372,6 +397,35 @@ def choose_teacher(message):
             bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
         else:
             bot.send_message(chat_id, "Сейчас пары нет.\nГлавное меню", reply_markup=mk.main())
+    elif message.text == 'Указать предмет':
+        # получить список всех предметов студента
+        # использовать маркап choose_item (параметром передать список всех предметов)
+        all_pairs = data_base.Pair.get_all_pairs(chat_id, group)
+        all_pairs = get_formated_all_pairs(all_pairs)
+
+        msg = bot.send_message(chat_id, "Выберите предмет:", reply_markup=mk.choose_item(all_pairs))
+        bot.register_next_step_handler(msg, get_teacher_by_pair_name)
+    else:
+        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+
+
+@bot.message_handler()
+def get_teacher_by_pair_name(message):
+    chat_id = message.chat.id
+    pair_name = message.text
+    group = data_base.User.get_group(chat_id)
+    sub_group = data_base.User.get_sub_group(chat_id)
+
+    if check_cancel(pair_name):
+        teachers = data_base.Pair.give_teacher(chat_id, group, sub_group, pair_name)
+        if teachers:
+            teacher_result = get_formated_teacher(teachers)
+
+            msg = bot.send_message(chat_id, teacher_result, reply_markup=mk.name_teacher())
+            bot.register_next_step_handler(msg, choose_teacher)
+        else:
+            msg = bot.send_message(chat_id, "У Вас нет такого предмета...", reply_markup=mk.name_teacher())
+            bot.register_next_step_handler(msg, choose_teacher)
     else:
         bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
 
