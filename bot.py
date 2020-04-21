@@ -3,6 +3,8 @@ import datetime
 import data_base
 import markups as mk
 import schedule
+import time
+from threading import Thread
 
 bot = TeleBot('1107223113:AAEx7XU3s4vLbEpyfTMk7_73lLA1KtQi-Mc')
 
@@ -314,8 +316,7 @@ def add_task(message):
 def task1_step1(message):
     chat_id = message.chat.id
     try:
-        data_base.Scheduler(chat_id=chat_id, command=f'schedule.every().days.at({message.text}).do(task1_step2, {chat_id})',
-                        task_type='today').add_task()
+        data_base.Scheduler(chat_id=chat_id, time=message.text, task_type='today').add_task()
         bot.send_message(chat_id, 'Напоминание установлено', reply_markup=mk.main())
     except Exception:
         bot.send_message(chat_id, 'Неверно введён формат времени. Верный формат - 06:00. Часы:минуты', reply_markup=mk.scheduler())
@@ -474,4 +475,34 @@ def get_teacher_by_pair_name(message):
 # bot.enable_save_next_step_handlers()
 # bot.load_next_step_handlers()
 
-bot.polling(none_stop=True)
+def send_timetable(message, task_type):
+    chat_id = message.chat.id
+
+    group = data_base.User.get_group(chat_id)
+    sub_group = data_base.User.get_sub_group(chat_id)
+    current_week_form = get_current_week_form()
+
+    if task_type == 'today':
+        current_weekday = datetime.datetime.weekday(datetime.datetime.now())
+        current_weekday = get_current_week_day(current_weekday)
+        query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
+        result = format_day_query(query, current_weekday)
+        bot.send_message(chat_id, result)
+
+
+def run_bot(time, task_type, chat_id):
+    schedule.every().day.at(time).do(send_timetable, task_type=task_type, chat_id=chat_id)
+
+    while True:
+        bot.polling(none_stop=True)
+
+
+def run_schedule():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
+if __name__ == '__main__':
+    Thread(target=run_bot, args=).run()
+    Thread(target=run_schedule).run()

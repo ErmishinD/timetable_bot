@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Boolean, Text
+from sqlalchemy import Column, String, Integer, Boolean, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import update
@@ -309,44 +309,26 @@ class Scheduler(Base):
     __tablename__ = 'scheduler'
 
     id = Column(Integer, nullable=False, primary_key=True)
-    chat_id = Column(String, nullable=False)
-    command = Column(String, nullable=True)
-    task_type = Column(String, nullable=False)
+    chat_id = Column(Integer, nullable=False)
+    time = Column(String, nullable=False)
+    task_type = Column(String, ForeignKey('user.chat_id'), nullable=False)
 
-    def __init__(self, chat_id, command, task_type):
+    def __init__(self, chat_id, time, task_type):
         self.chat_id = chat_id
-        self.command = command
+        self.time = time
         self.task_type = task_type
 
     def add_task(self):
         session_make = sessionmaker(engine)
         session = session_make()
 
-        add = Scheduler(chat_id=self.chat_id, command=self.command, task_type=self.task_type)
+        add = Scheduler(chat_id=self.chat_id, time=self.time, task_type=self.task_type)
 
         session.add(add)
         session.commit()
 
-    def remove_task(self):
-        pass
 
-    @staticmethod
-    def get_schedule():
-        session_make = sessionmaker(engine)
-        session = session_make()
-
-        query = Scheduler.all()
-
-        query = list(query)
-
-        if query:
-            session.close()
-            return query
-        else:
-            session.close()
-            return None
-
-        # Создание всех таблиц
+# Создание всех таблиц
 Base.metadata.create_all(engine)
 
 # Пример добавления в базу
