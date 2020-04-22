@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Column, String, Integer, Boolean, Text, ForeignKey
+from sqlalchemy import Column, String, Integer, Boolean, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import update
@@ -13,7 +13,6 @@ Base = declarative_base()
 
 class User(Base):
     """Инициализация класа и таблицы БД 'user'
-
     :param chat_id: id чата в телегараме.
     :type chat_id: int.
     :param username: Имя аккаунта юзера.
@@ -29,7 +28,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     chat_id = Column(Integer, nullable=False)
-    username = Column(String, nullable=True)
+    username = Column(String, nullable=False)
     is_admin = Column(Boolean, nullable=False)
     group = Column(String, nullable=False)
     sub_group = Column(Integer, nullable=False)
@@ -112,7 +111,6 @@ class User(Base):
 
 class Pair(Base):
     """Инициализация класса и таблицы в БД 'pair'.
-
     :param pair_name: Название пары.
     :type pair_name: str.
     :param form_of_pair: Вид пары (лекция, практика и т.д).
@@ -303,29 +301,6 @@ class Pair(Base):
         else:
             session.close()
             return None
-
-
-class Scheduler(Base):
-    __tablename__ = 'scheduler'
-
-    id = Column(Integer, nullable=False, primary_key=True)
-    chat_id = Column(Integer, nullable=False)
-    time = Column(String, nullable=False)
-    task_type = Column(String, ForeignKey('user.chat_id'), nullable=False)
-
-    def __init__(self, chat_id, time, task_type):
-        self.chat_id = chat_id
-        self.time = time
-        self.task_type = task_type
-
-    def add_task(self):
-        session_make = sessionmaker(engine)
-        session = session_make()
-
-        add = Scheduler(chat_id=self.chat_id, time=self.time, task_type=self.task_type)
-
-        session.add(add)
-        session.commit()
 
 
 # Создание всех таблиц
