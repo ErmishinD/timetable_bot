@@ -28,7 +28,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, nullable=False)
     chat_id = Column(Integer, nullable=False)
-    username = Column(String, nullable=False)
+    username = Column(String, nullable=True)
     is_admin = Column(Boolean, nullable=False)
     group = Column(String, nullable=False)
     sub_group = Column(Integer, nullable=False)
