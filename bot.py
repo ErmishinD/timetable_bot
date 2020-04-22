@@ -235,9 +235,10 @@ def get_formated_teacher(teachers):
 def get_formated_all_pairs(all_pairs):
     uniqe_pairs = []
 
-    for pair in all_pairs:
-        if pair[0] != '-' and pair[0] not in uniqe_pairs :
-            uniqe_pairs.append(pair[0])
+    if all_pairs:
+        for pair in all_pairs:
+            if pair[0] != '-' and pair[0] not in uniqe_pairs :
+                uniqe_pairs.append(pair[0])
 
     return uniqe_pairs
 
@@ -398,13 +399,15 @@ def choose_teacher(message):
         else:
             bot.send_message(chat_id, "Сейчас пары нет.\nГлавное меню", reply_markup=mk.main())
     elif message.text == 'Указать предмет':
-        # получить список всех предметов студента
-        # использовать маркап choose_item (параметром передать список всех предметов)
         all_pairs = data_base.Pair.get_all_pairs(chat_id, group)
         all_pairs = get_formated_all_pairs(all_pairs)
 
-        msg = bot.send_message(chat_id, "Выберите предмет:", reply_markup=mk.choose_item(all_pairs))
-        bot.register_next_step_handler(msg, get_teacher_by_pair_name)
+        if all_pairs:
+            msg = bot.send_message(chat_id, "Выберите предмет:", reply_markup=mk.choose_item(all_pairs))
+            bot.register_next_step_handler(msg, get_teacher_by_pair_name)
+        else:
+            msg = bot.send_message(chat_id, "Ошибка", reply_markup=mk.main())
+            bot.register_next_step_handler(msg, change_group)
     else:
         bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
 
