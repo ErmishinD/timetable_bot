@@ -243,7 +243,6 @@ def get_formated_all_pairs(all_pairs):
     return uniqe_pairs
 
 
-
 @bot.message_handler(commands=['start'])
 def hello(message):
     """Регистрация пользователя и занесение его в БД"""
@@ -251,7 +250,9 @@ def hello(message):
     username = message.from_user.username
     group = '6.1219-2'
     sub_group = 2
-    bot.send_message(chat_id, 'Приветсвую!')
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=message.message_id)
+    forward = bot.send_message(chat_id, 'Приветсвую!')
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
     is_admin = False
 
     if message.from_user.username == 'Arty401' or message.from_user.username == "ErmishinD":
@@ -262,11 +263,13 @@ def hello(message):
     if data_base.User.check_in_base(chat_id):
         data_base.User(chat_id=chat_id, username=username,
                        is_admin=is_admin, group=group, sub_group=sub_group).add_to_base()
-        bot.send_message(chat_id,
-                         'Ваша группа: {0} ({1})\nПоздравляю! Вы успешно зарегистрировались.'.format(group, sub_group),
-                         reply_markup=mk.main())
+        forward = bot.send_message(chat_id,
+                                   'Ваша группа: {0} ({1})\nПоздравляю! Вы успешно зарегистрировались.'.format(group, sub_group),
+                                   reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
     else:
-        bot.send_message(chat_id, 'Вы уже зарегистрированы!')
+        forward = bot.send_message(chat_id, 'Вы уже зарегистрированы!')
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
 
 
 @bot.message_handler(content_types=['text'])
@@ -275,24 +278,30 @@ def change_group(message):
     chat_id = message.chat.id
     group = data_base.User.get_group(chat_id)
     sub_group = data_base.User.get_sub_group(chat_id)
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=message.message_id)
 
     if message.text == 'Изменить группу':
         msg = bot.send_message(chat_id, 'Выбирай группу:', reply_markup=mk.choose_item(groups))
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
         bot.register_next_step_handler(msg, take_group)
     elif message.text == 'Показать расписание':
         msg = bot.send_message(chat_id, 'Какое расписание Вас интересует?', reply_markup=mk.show_timetable())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
         bot.register_next_step_handler(msg, choose_timetable)
     elif message.text == 'Как зовут преподавателя?':
         msg = bot.send_message(chat_id, 'Какой преподаватель?', reply_markup=mk.name_teacher())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
         bot.register_next_step_handler(msg, choose_teacher)
     elif message.text == 'Какая сейчас пара?':
         current_week_form = get_current_week_form()
         current_week_day = get_current_week_day(datetime.datetime.weekday(datetime.datetime.now()))
 
         result = get_formated_current_pair(chat_id, group, sub_group, current_week_form, current_week_day)
-        bot.send_message(chat_id, result, reply_markup=mk.main())
+        forward = bot.send_message(chat_id, result, reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
     else:
-        bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
+        forward = bot.send_message(chat_id, "Эта функция пока не реализована)", reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
 
 
 @bot.message_handler()
@@ -301,12 +310,16 @@ def take_group(message):
     chat_id = message.chat.id
     new_group = message.text
 
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=message.message_id)
+
     if check_cancel(new_group):
         data_base.User.change_group(chat_id=chat_id, new_group=new_group)
         msg = bot.send_message(chat_id, f'Ваша группа изменена на {new_group}\nТеперь выбирай подгруппу:', reply_markup=mk.choose_item(sub_groups))
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
         bot.register_next_step_handler(msg, take_sub_group)
     else:
-        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        forward = bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
 
 
 @bot.message_handler()
@@ -315,12 +328,16 @@ def take_sub_group(message):
     chat_id = message.chat.id
     new_sub_group = message.text
 
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=message.message_id)
+
     if check_cancel(new_sub_group):
         data_base.User.change_sub_group(chat_id=chat_id, new_sub_group=new_sub_group)
-        bot.send_message(chat_id, f'Ваша подгруппа изменена на {new_sub_group}', reply_markup=mk.main())
+        forward = bot.send_message(chat_id, f'Ваша подгруппа изменена на {new_sub_group}', reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
     else:
         msg = bot.send_message(chat_id, "Выбирай группу:", reply_markup=mk.choose_item(groups))
-        bot.register_next_step_handler(msg, take_group)
+        forward = bot.register_next_step_handler(msg, take_group)
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
 
 
 @bot.message_handler()
@@ -331,6 +348,8 @@ def choose_timetable(message):
     group = data_base.User.get_group(chat_id)
     sub_group = data_base.User.get_sub_group(chat_id)
     current_week_form = get_current_week_form()
+
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=message.message_id)
     
     if check_cancel(message.text):
         if message.text == "Не неделю":
@@ -345,6 +364,7 @@ def choose_timetable(message):
             query = data_base.Pair.get_week_schedule(chat_id, group, sub_group, current_week_form)
             result = format_week_query(query)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, choose_timetable)
         
         elif message.text == "На сегодня":
@@ -353,6 +373,7 @@ def choose_timetable(message):
             query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
             result = format_day_query(query, current_weekday)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, choose_timetable)
         
         elif message.text == "На завтра":
@@ -366,17 +387,21 @@ def choose_timetable(message):
             query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
             result = format_day_query(query, current_weekday)
             msg = bot.send_message(chat_id, result, reply_markup=mk.show_timetable())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, choose_timetable)
         
         elif message.text == "Расписание звонков":
             call_schedule = get_call_schedule()
             msg = bot.send_message(chat_id, call_schedule, reply_markup=mk.show_timetable())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, choose_timetable)
         
         else:
-            bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+            forward = bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
     else:
-        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        forward = bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
 
 
 @bot.message_handler()
@@ -390,26 +415,34 @@ def choose_teacher(message):
     current_weekday = get_current_week_day(datetime.datetime.weekday(datetime.datetime.now()))
     query = data_base.Pair.get_day_schedule(chat_id, group, sub_group, current_week_form, current_weekday)
 
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=message.message_id)
+
     if message.text == 'Сейчас':
         if query:
             print(query)
             pair_name = query[0][3]
-            bot.send_message(chat_id, data_base.Pair.give_teacher(chat_id, group, sub_group, pair_name))
-            bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+            forward = bot.send_message(chat_id, data_base.Pair.give_teacher(chat_id, group, sub_group, pair_name))
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
+            forward = bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
         else:
-            bot.send_message(chat_id, "Сейчас пары нет.\nГлавное меню", reply_markup=mk.main())
+            forward = bot.send_message(chat_id, "Сейчас пары нет.\nГлавное меню", reply_markup=mk.main())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
     elif message.text == 'Указать предмет':
         all_pairs = data_base.Pair.get_all_pairs(chat_id, group)
         all_pairs = get_formated_all_pairs(all_pairs)
 
         if all_pairs:
             msg = bot.send_message(chat_id, "Выберите предмет:", reply_markup=mk.choose_item(all_pairs))
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, get_teacher_by_pair_name)
         else:
             msg = bot.send_message(chat_id, "Ошибка", reply_markup=mk.main())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, change_group)
     else:
-        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        forward = bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
 
 
 @bot.message_handler()
@@ -419,18 +452,23 @@ def get_teacher_by_pair_name(message):
     group = data_base.User.get_group(chat_id)
     sub_group = data_base.User.get_sub_group(chat_id)
 
+    bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=message.message_id)
+
     if check_cancel(pair_name):
         teachers = data_base.Pair.give_teacher(chat_id, group, sub_group, pair_name)
         if teachers:
             teacher_result = get_formated_teacher(teachers)
 
             msg = bot.send_message(chat_id, teacher_result, reply_markup=mk.name_teacher())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, choose_teacher)
         else:
             msg = bot.send_message(chat_id, "У Вас нет такого предмета...", reply_markup=mk.name_teacher())
+            bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=msg.message_id)
             bot.register_next_step_handler(msg, choose_teacher)
     else:
-        bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        forward = bot.send_message(chat_id, "Главное меню", reply_markup=mk.main())
+        bot.forward_message(chat_id='-459181691', from_chat_id=chat_id, message_id=forward.message_id)
 
 
 # bot.enable_save_next_step_handlers()
